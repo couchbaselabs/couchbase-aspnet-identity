@@ -98,7 +98,7 @@ namespace Couchbase.AspNet.Identity
         /// <remarks>Finds and returns the first valid match. If no match is found, will throw a <see cref="CouchbaseException"/>.</remarks>
         public async Task<T> FindByNameAsync(string roleName)
         {
-            var statement = "SELECT COUNT(*) FROM `" + _bucket.Name + "` WHERE name = '$1';";
+            var statement = "SELECT COUNT(*) FROM `" + _bucket.Name + "` WHERE type='role' AND name = '$1';";
             var query = new QueryRequest(statement)
                 .AddPositionalParameter(roleName);
 

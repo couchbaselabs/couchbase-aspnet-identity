@@ -15,7 +15,7 @@ namespace Couchbase.AspNet.Identity
     /// <typeparam name="T">The <see cref="IdentityRole"/> being retrieved or mutated.</typeparam>
     public class RoleStore<T> : IQueryableRoleStore<T> where T : IdentityRole
     {
-        public IBucket Bucket;
+        private IBucket _bucket;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RoleStore{T}"/> class.
@@ -23,7 +23,7 @@ namespace Couchbase.AspNet.Identity
         /// <param name="bucket">The bucket.</param>
         public RoleStore(IBucket bucket)
         {
-            Bucket = bucket;
+            _bucket = bucket;
         }
 
         public IQueryable<T> Roles
@@ -39,7 +39,7 @@ namespace Couchbase.AspNet.Identity
         /// <exception cref="CouchbaseException"></exception>
         public async Task CreateAsync(T role)
         {
-            var result = await Bucket.InsertAsync(role.Id, role);
+            var result = await _bucket.InsertAsync(role.Id, role);
             if (!result.Success)
             {
                 if (result.Exception != null)
@@ -58,7 +58,7 @@ namespace Couchbase.AspNet.Identity
         /// <exception cref="CouchbaseException"></exception>
         public async Task DeleteAsync(T role)
         {
-            var result = await Bucket.RemoveAsync(role.Id);
+            var result = await _bucket.RemoveAsync(role.Id);
             if (!result.Success)
             {
                 if (result.Exception != null)
@@ -77,7 +77,7 @@ namespace Couchbase.AspNet.Identity
         /// <exception cref="CouchbaseException"></exception>
         public async Task<T> FindByIdAsync(string roleId)
         {
-            var result = await Bucket.GetAsync<T>(roleId);
+            var result = await _bucket.GetAsync<T>(roleId);
             if (!result.Success)
             {
                 if (result.Exception != null)
@@ -98,11 +98,11 @@ namespace Couchbase.AspNet.Identity
         /// <remarks>Finds and returns the first valid match. If no match is found, will throw a <see cref="CouchbaseException"/>.</remarks>
         public async Task<T> FindByNameAsync(string roleName)
         {
-            var statement = "SELECT COUNT(*) FROM `" + Bucket.Name + "` WHERE name = '$1';";
+            var statement = "SELECT COUNT(*) FROM `" + _bucket.Name + "` WHERE name = '$1';";
             var query = new QueryRequest(statement)
                 .AddPositionalParameter(roleName);
 
-            var result = await Bucket.QueryAsync<T>(query);
+            var result = await _bucket.QueryAsync<T>(query);
             if (!result.Success)
             {
                 if (result.Exception != null)
@@ -122,7 +122,7 @@ namespace Couchbase.AspNet.Identity
         /// <exception cref="CouchbaseException"></exception>
         public async Task UpdateAsync(T role)
         {
-            var result = await Bucket.ReplaceAsync(role.Id, role);
+            var result = await _bucket.ReplaceAsync(role.Id, role);
             if (!result.Success)
             {
                 if (result.Exception != null)
@@ -135,7 +135,7 @@ namespace Couchbase.AspNet.Identity
 
         public void Dispose()
         {
-            Bucket.Dispose();
+            _bucket.Dispose();
         }
     }
 }

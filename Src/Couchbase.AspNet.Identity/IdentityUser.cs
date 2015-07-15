@@ -39,5 +39,21 @@ namespace Couchbase.AspNet.Identity
         /// The name of the user.
         /// </value>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the email for the user.
+        /// </summary>
+        /// <value>
+        /// The email.
+        /// </value>
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the user's email has been confirmed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the user's email has been confirmed; otherwise, <c>false</c>.
+        /// </value>
+        public bool EmailConfirmed { get; set; }
     }
 }

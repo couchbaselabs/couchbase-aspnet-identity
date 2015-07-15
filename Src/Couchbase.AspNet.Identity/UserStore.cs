@@ -293,29 +293,93 @@ namespace Couchbase.AspNet.Identity
             throw new NotImplementedException();
         }
 
-        public Task SetEmailAsync(T user, string email)
+        /// <summary>
+        /// Sets the user's email asynchronously.
+        /// </summary>
+        /// <param name="user">The user's email.</param>
+        /// <param name="email">The email to set to the user's identity.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task SetEmailAsync(T user, string email)
         {
-            throw new NotImplementedException();
+           user.Email = email;
+           var result = await _bucket.ReplaceAsync(user.Id, user);
+           if (!result.Success)
+           {
+               if (result.Exception != null)
+               {
+                   throw result.Exception;
+               }
+               throw new CouchbaseException(result, user.Id);
+           }
         }
 
+        /// <summary>
+        /// Gets the user's email asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<string> GetEmailAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.Email);
         }
 
+        /// <summary>
+        /// Gets the confirmed status of the user's email.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<bool> GetEmailConfirmedAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.EmailConfirmed);
         }
 
-        public Task SetEmailConfirmedAsync(T user, bool confirmed)
+        /// <summary>
+        /// Sets the user's email confirmed flag asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="confirmed">if set to <c>true</c> the user's email has been confirmed.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task SetEmailConfirmedAsync(T user, bool confirmed)
         {
-            throw new NotImplementedException();
+            user.EmailConfirmed = confirmed;
+            var result = await _bucket.ReplaceAsync(user.Id, user);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
 
-        public Task<T> FindByEmailAsync(string email)
+        /// <summary>
+        /// Finds the user by email asynchronously.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task<T> FindByEmailAsync(string email)
         {
-            throw new NotImplementedException();
+            var statement = "SELECT * FROM `" + _bucket.Name + "` WHERE type='user' AND email = '$1';";
+            var query = new QueryRequest(statement)
+                .AddPositionalParameter(email);
+
+            var result = await _bucket.QueryAsync<T>(query);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException((IOperationResult)result, email);
+            }
+            return result.Rows[0];
         }
     }
 }

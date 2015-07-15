@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Couchbase.Core;
+using Couchbase.N1QL;
 using Microsoft.AspNet.Identity;
 
 namespace Couchbase.AspNet.Identity
@@ -23,34 +25,122 @@ namespace Couchbase.AspNet.Identity
         IUserTwoFactorStore<T, string>,
         IUserEmailStore<T> where T : IdentityUser
     {
+        private IBucket _bucket;
+
+        public UserStore(IBucket bucket)
+        {
+            _bucket = bucket;
+        }
+
         public void Dispose()
         {
             throw new NotImplementedException();
         }
 
-        public Task CreateAsync(T user)
+        /// <summary>
+        /// Creates a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task CreateAsync(T user)
         {
-            throw new NotImplementedException();
+            var result = await _bucket.InsertAsync(user.Id, user);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
 
-        public Task UpdateAsync(T user)
+        /// <summary>
+        /// Updates a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task UpdateAsync(T user)
         {
-            throw new NotImplementedException();
+            var result = await _bucket.ReplaceAsync(user.Id, user);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
 
-        public Task DeleteAsync(T user)
+        /// <summary>
+        /// Deletes a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task DeleteAsync(T user)
         {
-            throw new NotImplementedException();
+            var result = await _bucket.RemoveAsync(user.Id);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
 
-        public Task<T> FindByIdAsync(string userId)
+        /// <summary>
+        /// Finds the user by it's id (key) asynchronously.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task<T> FindByIdAsync(string userId)
         {
-            throw new NotImplementedException();
+            var result = await _bucket.GetAsync<T>(userId);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, userId);
+            }
+            return result.Value;
         }
 
-        public Task<T> FindByNameAsync(string userName)
+        /// <summary>
+        /// Finds a user by it's name.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition that cannot be resolved.</exception>
+        public async Task<T> FindByNameAsync(string userName)
         {
-            throw new NotImplementedException();
+            var statement = "SELECT COUNT(*) FROM `" + _bucket.Name + "` WHERE type='user' AND name = '$1';";
+            var query = new QueryRequest(statement)
+                .AddPositionalParameter(userName);
+
+            var result = await _bucket.QueryAsync<T>(query);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException((IOperationResult)result, userName);
+            }
+            return result.Rows[0];
         }
 
         public Task AddLoginAsync(T user, UserLoginInfo login)

@@ -55,5 +55,13 @@ namespace Couchbase.AspNet.Identity
         ///   <c>true</c> if the user's email has been confirmed; otherwise, <c>false</c>.
         /// </value>
         public bool EmailConfirmed { get; set; }
+
+        /// <summary>
+        /// Gets or sets the password hash for the user.
+        /// </summary>
+        /// <value>
+        /// The password hash.
+        /// </value>
+        public string PasswordHash { get; set; }
     }
 }

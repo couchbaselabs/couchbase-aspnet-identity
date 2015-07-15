@@ -211,5 +211,86 @@ namespace Couchbase.AspNet.Identity.Tests
             var store = new UserStore<IdentityUser>(mockBucket.Object);
             Assert.Throws<CouchbaseException>(async () => await store.SetEmailConfirmedAsync(user, confirmed));
         }
+
+        [Test]
+        public async void When_User_Has_PasswordHash_HasPasswordHashAsync_Returns_True()
+        {
+            var user = new IdentityUser("foo")
+            {
+                PasswordHash = "somehashedpassword"
+            };
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            var store = new UserStore<IdentityUser>(mockBucket.Object);
+
+            Assert.IsTrue(await store.HasPasswordAsync(user));
+        }
+
+        [Test]
+        public async void When_User_Does_Not_Have_PasswordHash_HasPasswordHashAsync_Returns_False()
+        {
+            var user = new IdentityUser("foo");
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            var store = new UserStore<IdentityUser>(mockBucket.Object);
+
+            Assert.IsFalse(await store.HasPasswordAsync(user));
+        }
+
+        [Test]
+        public async void When_User_Has_Password_Hash__GetPasswordHashAsync_Returns_It()
+        {
+            var user = new IdentityUser("foo")
+            {
+                PasswordHash = "somepasswordhash"
+            };
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            var store = new UserStore<IdentityUser>(mockBucket.Object);
+
+            Assert.IsNotNullOrEmpty(await store.GetPasswordHashAsync(user));
+        }
+
+        [Test]
+        public void When_User_Exists_SetPasswordHashAsync_Succeeds()
+        {
+            var user = new IdentityUser("foo");
+            const string passwordHash = "somepasswordhash";
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(true);
+            mockResult.SetupGet(x => x.Status).Returns(ResponseStatus.Success);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
+                .ReturnsAsync(mockResult.Object);
+
+            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            Assert.DoesNotThrow(async () => await store.SetPasswordHashAsync(user, passwordHash));
+            Assert.AreEqual(passwordHash, user.PasswordHash);
+        }
+
+        [Test]
+        public void When_User_Does_Not_Exist_SetPasswordHashAsync_Fails()
+        {
+            var user = new IdentityUser("foo");
+            var passwordHash = "somepasswordhash";
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(false);
+            mockResult.SetupGet(x => x.Status).Returns(ResponseStatus.KeyNotFound);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
+                .ReturnsAsync(mockResult.Object);
+
+            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            Assert.Throws<CouchbaseException>(async () => await store.SetPasswordHashAsync(user, passwordHash));
+        }
     }
 }

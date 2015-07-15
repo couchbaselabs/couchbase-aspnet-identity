@@ -213,19 +213,45 @@ namespace Couchbase.AspNet.Identity
             get { throw new NotImplementedException(); }
         }
 
-        public Task SetPasswordHashAsync(T user, string passwordHash)
+        /// <summary>
+        /// Sets the password hash for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="passwordHash">The password hash.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException"></exception>
+        public async Task SetPasswordHashAsync(T user, string passwordHash)
         {
-            throw new NotImplementedException();
+            user.PasswordHash = passwordHash;
+            var result = await _bucket.ReplaceAsync(user.Id, user);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
 
+        /// <summary>
+        /// Gets the password hash for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<string> GetPasswordHashAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.PasswordHash);
         }
 
+        /// <summary>
+        /// Determines whether a user has a password hash asychronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<bool> HasPasswordAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(!string.IsNullOrWhiteSpace(user.PasswordHash));
         }
 
         public Task SetPhoneNumberAsync(T user, string phoneNumber)

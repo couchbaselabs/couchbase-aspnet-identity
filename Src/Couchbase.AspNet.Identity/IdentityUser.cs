@@ -94,5 +94,13 @@ namespace Couchbase.AspNet.Identity
         /// Used to record failures for the purposes of lockout
         /// </summary>
         public int AccessFailedCount { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether two factor authentication is enabled for a user.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if two factor authentication is enabled; otherwise, <c>false</c>.
+        /// </value>
+        public bool TwoFactorEnabled { get; set; }
     }
 }

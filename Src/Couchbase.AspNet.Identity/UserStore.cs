@@ -335,7 +335,7 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <returns></returns>
         /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
-        /// <exception cref="Exception">Any client error condition.</exception
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task ResetAccessFailedCountAsync(T user)
         {
             user.AccessFailedCount = 0;
@@ -347,31 +347,57 @@ namespace Couchbase.AspNet.Identity
         /// </summary>
         /// <param name="user">The user.</param>
         /// <returns></returns>
-        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
-        /// <exception cref="Exception">Any client error condition.</exception
         public Task<int> GetAccessFailedCountAsync(T user)
         {
             return Task.FromResult(user.AccessFailedCount);
         }
 
+        /// <summary>
+        /// Gets the lockout enabled flag for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<bool> GetLockoutEnabledAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.LockoutEnabled);
         }
 
-        public Task SetLockoutEnabledAsync(T user, bool enabled)
+        /// <summary>
+        /// Sets the lockout enabled flag for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="enabled">if set to <c>true</c> [enabled].</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task SetLockoutEnabledAsync(T user, bool enabled)
         {
-            throw new NotImplementedException();
+            user.LockoutEnabled = enabled;
+            await UpdateUser(user);
         }
 
-        public Task SetTwoFactorEnabledAsync(T user, bool enabled)
+        /// <summary>
+        /// Sets a flag indicating two factor authentication is enabled for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="enabled">if set to <c>true</c> <see cref="IdentityUser.TwoFactorEnabled"/>enabled.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task SetTwoFactorEnabledAsync(T user, bool enabled)
         {
-            throw new NotImplementedException();
+            user.TwoFactorEnabled = enabled;
+            await UpdateUser(user);
         }
 
+        /// <summary>
+        /// Gets a flag indicating two factor authentication is enabled for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<bool> GetTwoFactorEnabledAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.TwoFactorEnabled);
         }
 
         /// <summary>

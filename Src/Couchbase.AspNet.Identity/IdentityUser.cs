@@ -79,5 +79,20 @@ namespace Couchbase.AspNet.Identity
         /// <c>true</c> if the  <see cref="PhoneNumber"/>confirmed; otherwise, <c>false</c>.
         /// </value>
         public bool PhoneNumberConfirmed { get; set; }
+
+        /// <summary>
+        /// DateTime in UTC when lockout ends, any time in the past is considered not locked out.
+        /// </summary>
+        public DateTime? LockoutEndDateUtc { get; set; }
+
+        /// <summary>
+        /// Is lockout enabled for this user
+        /// </summary>
+        public bool LockoutEnabled { get; set; }
+
+        /// <summary>
+        /// Used to record failures for the purposes of lockout
+        /// </summary>
+        public int AccessFailedCount { get; set; }
     }
 }

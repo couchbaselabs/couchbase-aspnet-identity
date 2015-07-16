@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.N1QL;
@@ -287,29 +288,70 @@ namespace Couchbase.AspNet.Identity
             await UpdateUser(user);
         }
 
+        /// <summary>
+        /// Gets the lockout end date for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<DateTimeOffset> GetLockoutEndDateAsync(T user)
         {
-            throw new NotImplementedException();
+            var lockoutEndDateUtc = user.LockoutEndDateUtc;
+            return Task.FromResult(lockoutEndDateUtc.HasValue ?
+                new DateTimeOffset(DateTime.SpecifyKind(lockoutEndDateUtc.Value, DateTimeKind.Utc)) :
+                new DateTimeOffset());
         }
 
-        public Task SetLockoutEndDateAsync(T user, DateTimeOffset lockoutEnd)
+        /// <summary>
+        /// Sets the lockout end date asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="lockoutEnd">The lockout end.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task SetLockoutEndDateAsync(T user, DateTimeOffset lockoutEnd)
         {
-            throw new NotImplementedException();
+            user.LockoutEndDateUtc = lockoutEnd.UtcDateTime;
+            await UpdateUser(user);
         }
 
-        public Task<int> IncrementAccessFailedCountAsync(T user)
+        /// <summary>
+        /// Increments the access failed count for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
+        public async Task<int> IncrementAccessFailedCountAsync(T user)
         {
-            throw new NotImplementedException();
+            user.AccessFailedCount++;
+            await UpdateUser(user);
+            return user.AccessFailedCount;
         }
 
-        public Task ResetAccessFailedCountAsync(T user)
+        /// <summary>
+        /// Resets the access failed count asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception
+        public async Task ResetAccessFailedCountAsync(T user)
         {
-            throw new NotImplementedException();
+            user.AccessFailedCount = 0;
+            await UpdateUser(user);
         }
 
+        /// <summary>
+        /// Gets the access failed count asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception
         public Task<int> GetAccessFailedCountAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.AccessFailedCount);
         }
 
         public Task<bool> GetLockoutEnabledAsync(T user)

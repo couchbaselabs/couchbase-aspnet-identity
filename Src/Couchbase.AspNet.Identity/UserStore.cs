@@ -66,15 +66,7 @@ namespace Couchbase.AspNet.Identity
         /// <exception cref="Exception">Any client error condition.</exception>
         public async Task UpdateAsync(T user)
         {
-            var result = await _bucket.ReplaceAsync(user.Id, user);
-            if (!result.Success)
-            {
-                if (result.Exception != null)
-                {
-                    throw result.Exception;
-                }
-                throw new CouchbaseException(result, user.Id);
-            }
+            await UpdateUser(user);
         }
 
         /// <summary>
@@ -219,19 +211,12 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <param name="passwordHash">The password hash.</param>
         /// <returns></returns>
-        /// <exception cref="CouchbaseException"></exception>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task SetPasswordHashAsync(T user, string passwordHash)
         {
             user.PasswordHash = passwordHash;
-            var result = await _bucket.ReplaceAsync(user.Id, user);
-            if (!result.Success)
-            {
-                if (result.Exception != null)
-                {
-                    throw result.Exception;
-                }
-                throw new CouchbaseException(result, user.Id);
-            }
+            await UpdateUser(user);
         }
 
         /// <summary>
@@ -260,6 +245,8 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <param name="phoneNumber">The phone number.</param>
         /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task SetPhoneNumberAsync(T user, string phoneNumber)
         {
             user.PhoneNumber = phoneNumber;
@@ -292,6 +279,8 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <param name="confirmed">if set to <c>true</c> [confirmed].</param>
         /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task SetPhoneNumberConfirmedAsync(T user, bool confirmed)
         {
             user.PhoneNumberConfirmed = confirmed;
@@ -354,15 +343,7 @@ namespace Couchbase.AspNet.Identity
         public async Task SetEmailAsync(T user, string email)
         {
            user.Email = email;
-           var result = await _bucket.ReplaceAsync(user.Id, user);
-           if (!result.Success)
-           {
-               if (result.Exception != null)
-               {
-                   throw result.Exception;
-               }
-               throw new CouchbaseException(result, user.Id);
-           }
+           await UpdateUser(user);
         }
 
         /// <summary>
@@ -401,6 +382,7 @@ namespace Couchbase.AspNet.Identity
             {
                 if (result.Exception != null)
                 {
+                    // ReSharper disable once ThrowingSystemException
                     throw result.Exception;
                 }
                 throw new CouchbaseException(result, user.Id);
@@ -425,6 +407,7 @@ namespace Couchbase.AspNet.Identity
             {
                 if (result.Exception != null)
                 {
+                    // ReSharper disable once ThrowingSystemException
                     throw result.Exception;
                 }
                 throw new CouchbaseException((IOperationResult)result, email);
@@ -432,6 +415,13 @@ namespace Couchbase.AspNet.Identity
             return result.Rows[0];
         }
 
+        /// <summary>
+        /// Updates the user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         async Task UpdateUser(T user)
         {
             var result = await _bucket.ReplaceAsync(user.Id, user);
@@ -439,6 +429,7 @@ namespace Couchbase.AspNet.Identity
             {
                 if (result.Exception != null)
                 {
+                    // ReSharper disable once ThrowingSystemException
                     throw result.Exception;
                 }
                 throw new CouchbaseException(result, user.Id);

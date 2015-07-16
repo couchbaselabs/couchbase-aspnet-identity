@@ -63,5 +63,21 @@ namespace Couchbase.AspNet.Identity
         /// The password hash.
         /// </value>
         public string PasswordHash { get; set; }
+
+        /// <summary>
+        /// Gets or sets the phone number for the user.
+        /// </summary>
+        /// <value>
+        /// The phone number.
+        /// </value>
+        public string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="PhoneNumber"/> was confirmed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the  <see cref="PhoneNumber"/>confirmed; otherwise, <c>false</c>.
+        /// </value>
+        public bool PhoneNumberConfirmed { get; set; }
     }
 }

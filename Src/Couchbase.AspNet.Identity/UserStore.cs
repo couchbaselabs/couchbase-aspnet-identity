@@ -254,24 +254,48 @@ namespace Couchbase.AspNet.Identity
             return Task.FromResult(!string.IsNullOrWhiteSpace(user.PasswordHash));
         }
 
-        public Task SetPhoneNumberAsync(T user, string phoneNumber)
+        /// <summary>
+        /// Sets the phone number for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="phoneNumber">The phone number.</param>
+        /// <returns></returns>
+        public async Task SetPhoneNumberAsync(T user, string phoneNumber)
         {
-            throw new NotImplementedException();
+            user.PhoneNumber = phoneNumber;
+            await UpdateUser(user);
         }
 
+        /// <summary>
+        /// Gets the phone number for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<string> GetPhoneNumberAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.PhoneNumber);
         }
 
+        /// <summary>
+        /// Gets the <see cref="IdentityUser.PhoneNumberConfirmed"/> for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<bool> GetPhoneNumberConfirmedAsync(T user)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.PhoneNumberConfirmed);
         }
 
-        public Task SetPhoneNumberConfirmedAsync(T user, bool confirmed)
+        /// <summary>
+        /// Sets the <see cref="IdentityUser.PhoneNumberConfirmed"/> for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="confirmed">if set to <c>true</c> [confirmed].</param>
+        /// <returns></returns>
+        public async Task SetPhoneNumberConfirmedAsync(T user, bool confirmed)
         {
-            throw new NotImplementedException();
+            user.PhoneNumberConfirmed = confirmed;
+            await UpdateUser(user);
         }
 
         public Task<DateTimeOffset> GetLockoutEndDateAsync(T user)
@@ -406,6 +430,19 @@ namespace Couchbase.AspNet.Identity
                 throw new CouchbaseException((IOperationResult)result, email);
             }
             return result.Rows[0];
+        }
+
+        async Task UpdateUser(T user)
+        {
+            var result = await _bucket.ReplaceAsync(user.Id, user);
+            if (!result.Success)
+            {
+                if (result.Exception != null)
+                {
+                    throw result.Exception;
+                }
+                throw new CouchbaseException(result, user.Id);
+            }
         }
     }
 }

@@ -13,77 +13,137 @@ namespace Couchbase.AspNet.Identity.Tests
         [Test]
         public void When_Success_CreateAsync_Does_Not_Throw_Exception()
         {
-            var mockResult = new Mock<IOperationResult<IdentityUser>>();
-            mockResult.SetupGet(x => x.Success).Returns(true);
-
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(true);
             mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var mockResult2 = new Mock<IOperationResult<string>>();
+            mockResult2.SetupGet(x => x.Success).Returns(true);
+            mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<string>()))
+              .ReturnsAsync(mockResult2.Object);
+
+            var mockResult3 = new Mock<IOperationResult<string>>();
+            mockResult3.SetupGet(x => x.Success).Returns(true);
+            mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<string>()))
+              .ReturnsAsync(mockResult3.Object);
+
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.DoesNotThrow(async () => await store.CreateAsync(new IdentityUser(Guid.NewGuid().ToString())));
         }
 
         [Test]
         public void When_Not_Success_CreateAsync_Throws_CouchbaseException()
         {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
             var mockResult = new Mock<IOperationResult<IdentityUser>>();
             mockResult.SetupGet(x => x.Success).Returns(false);
             mockResult.SetupGet(x => x.Status).Returns(ResponseStatus.KeyExists);
-
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
             mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
-            Assert.Throws<CouchbaseException>(async () => await store.CreateAsync(new IdentityUser(Guid.NewGuid().ToString())));
+            var mockResult2 = new Mock<IOperationResult<string>>();
+            mockResult2.SetupGet(x => x.Success).Returns(false);
+            mockResult2.SetupGet(x => x.Status).Returns(ResponseStatus.KeyExists);
+            mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<string>()))
+              .ReturnsAsync(mockResult2.Object);
+
+            var mockResult3 = new Mock<IOperationResult<string>>();
+            mockResult3.SetupGet(x => x.Success).Returns(false);
+            mockResult3.SetupGet(x => x.Status).Returns(ResponseStatus.KeyExists);
+            mockBucket.Setup(x => x.InsertAsync(It.IsAny<string>(), It.IsAny<string>()))
+              .ReturnsAsync(mockResult3.Object);
+
+            var user = new IdentityUser("foo")
+            {
+                Email = "foo@bar.com"
+            };
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
+            Assert.Throws<CouchbaseException>(async () => await store.CreateAsync(user));
         }
 
         [Test]
         public void When_Success_DeleteAsync_Does_Not_Throw_Exception()
         {
-            var mockResult = new Mock<IOperationResult<IdentityUser>>();
-            mockResult.SetupGet(x => x.Success).Returns(true);
-
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(true);
             mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
-            Assert.DoesNotThrow(async () => await store.DeleteAsync(new IdentityUser(Guid.NewGuid().ToString())));
+            var mockResult2 = new Mock<IOperationResult<string>>();
+            mockResult2.SetupGet(x => x.Success).Returns(true);
+            mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
+              .ReturnsAsync(mockResult2.Object);
+
+            var mockResult3 = new Mock<IOperationResult<string>>();
+            mockResult3.SetupGet(x => x.Success).Returns(true);
+            mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
+              .ReturnsAsync(mockResult3.Object);
+
+            var user = new IdentityUser("foo")
+            {
+                Email = "foo@bar.com"
+            };
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
+            Assert.DoesNotThrow(async () => await store.DeleteAsync(user));
         }
 
         [Test]
         public void When_Not_Success_DeleteAsync_Throws_CouchbaseException()
         {
-            var mockResult = new Mock<IOperationResult<IdentityUser>>();
-            mockResult.SetupGet(x => x.Success).Returns(false);
-
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(false);
             mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
-            Assert.Throws<CouchbaseException>(async () => await store.DeleteAsync(new IdentityUser(Guid.NewGuid().ToString())));
+            var mockResult2 = new Mock<IOperationResult<string>>();
+            mockResult2.SetupGet(x => x.Success).Returns(false);
+            mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
+              .ReturnsAsync(mockResult2.Object);
+
+            var mockResult3 = new Mock<IOperationResult<string>>();
+            mockResult3.SetupGet(x => x.Success).Returns(false);
+            mockBucket.Setup(x => x.RemoveAsync(It.IsAny<string>()))
+              .ReturnsAsync(mockResult3.Object);
+
+            var user = new IdentityUser("foo")
+            {
+                Email = "foo@bar.com"
+            };
+
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
+            Assert.Throws<CouchbaseException>(async () => await store.DeleteAsync(user));
         }
 
         [Test]
         public void When_Success_UpdateAsync_Does_Not_Throw_Exception()
         {
-            var mockResult = new Mock<IOperationResult<IdentityUser>>();
-            mockResult.SetupGet(x => x.Success).Returns(true);
-
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var mockResult = new Mock<IOperationResult<IdentityUser>>();
+            mockResult.SetupGet(x => x.Success).Returns(true);
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
-            Assert.DoesNotThrow(async () => await store.UpdateAsync(new IdentityUser(Guid.NewGuid().ToString())));
+            var user = new IdentityUser("foo")
+            {
+                Email = "foo@bar.com"
+            };
+
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
+            Assert.DoesNotThrow(async () => await store.UpdateAsync(user));
         }
 
         [Test]
@@ -98,7 +158,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.Throws<CouchbaseException>(async () => await store.UpdateAsync(new IdentityUser(Guid.NewGuid().ToString())));
         }
 
@@ -114,7 +174,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.GetAsync<IdentityUser>(It.IsAny<string>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.Throws<CouchbaseException>(async () => await store.FindByIdAsync(Guid.NewGuid().ToString()));
         }
 
@@ -130,7 +190,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.GetAsync<IdentityUser>(It.IsAny<string>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.DoesNotThrow(async () => await store.FindByIdAsync(Guid.NewGuid().ToString()));
         }
 
@@ -149,7 +209,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.DoesNotThrow(async () => await store.SetEmailAsync(user, expectedEmail));
             Assert.AreEqual(expectedEmail, user.Email);
         }
@@ -169,7 +229,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.Throws<CouchbaseException>(async () => await store.SetEmailAsync(user, expectedEmail));
         }
 
@@ -188,7 +248,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.DoesNotThrow(async () => await store.SetEmailConfirmedAsync(user, confirmed));
             Assert.AreEqual(confirmed, user.EmailConfirmed);
         }
@@ -208,7 +268,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.Throws<CouchbaseException>(async () => await store.SetEmailConfirmedAsync(user, confirmed));
         }
 
@@ -222,7 +282,7 @@ namespace Couchbase.AspNet.Identity.Tests
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
 
             Assert.IsTrue(await store.HasPasswordAsync(user));
         }
@@ -234,7 +294,7 @@ namespace Couchbase.AspNet.Identity.Tests
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
 
             Assert.IsFalse(await store.HasPasswordAsync(user));
         }
@@ -249,7 +309,7 @@ namespace Couchbase.AspNet.Identity.Tests
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
 
             Assert.IsNotNullOrEmpty(await store.GetPasswordHashAsync(user));
         }
@@ -269,7 +329,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.DoesNotThrow(async () => await store.SetPasswordHashAsync(user, passwordHash));
             Assert.AreEqual(passwordHash, user.PasswordHash);
         }
@@ -289,7 +349,7 @@ namespace Couchbase.AspNet.Identity.Tests
             mockBucket.Setup(x => x.ReplaceAsync(It.IsAny<string>(), It.IsAny<IdentityUser>()))
                 .ReturnsAsync(mockResult.Object);
 
-            var store = new UserStore<IdentityUser>(mockBucket.Object);
+            var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
             Assert.Throws<CouchbaseException>(async () => await store.SetPasswordHashAsync(user, passwordHash));
         }
     }

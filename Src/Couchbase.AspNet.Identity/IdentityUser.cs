@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 
 namespace Couchbase.AspNet.Identity
@@ -13,6 +15,10 @@ namespace Couchbase.AspNet.Identity
         /// </summary>
         public IdentityUser()
         {
+            UserLoginIds = new List<string>();
+            Roles = new List<IdentityRole>();
+            Claims = new List<Claim>();
+            Id = Guid.NewGuid().ToString();
         }
 
         /// <summary>
@@ -20,6 +26,7 @@ namespace Couchbase.AspNet.Identity
         /// </summary>
         /// <param name="username">The username.</param>
         public IdentityUser(string username)
+            : this()
         {
             UserName = username;
         }
@@ -102,5 +109,37 @@ namespace Couchbase.AspNet.Identity
         ///   <c>true</c> if two factor authentication is enabled; otherwise, <c>false</c>.
         /// </value>
         public bool TwoFactorEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the user login infos.
+        /// </summary>
+        /// <value>
+        /// The user login infos.
+        /// </value>
+        public IList<string> UserLoginIds { get; set; }
+
+        /// <summary>
+        /// Gets or sets the security stamp.
+        /// </summary>
+        /// <value>
+        /// The security stamp.
+        /// </value>
+        public string SecurityStamp { get; set; }
+
+        /// <summary>
+        /// Gets or sets the roles the user belongs to.
+        /// </summary>
+        /// <value>
+        /// The roles.
+        /// </value>
+        public ICollection<IdentityRole> Roles { get; set; }
+
+        /// <summary>
+        /// Gets or sets the claims for the user.
+        /// </summary>
+        /// <value>
+        /// The claims.
+        /// </value>
+        public ICollection<Claim> Claims { get; set; }
     }
 }

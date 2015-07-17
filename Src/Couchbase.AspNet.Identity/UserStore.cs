@@ -122,6 +122,8 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <param name="login">The login.</param>
         /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task AddLoginAsync(T user, UserLoginInfo login)
         {
             var adapter = new UserLoginInfoAdapter
@@ -143,6 +145,8 @@ namespace Couchbase.AspNet.Identity
         /// <param name="user">The user.</param>
         /// <param name="login">The login.</param>
         /// <returns></returns>
+        /// <exception cref="CouchbaseException">All server responses other than Success.</exception>
+        /// <exception cref="Exception">Any client error condition.</exception>
         public async Task RemoveLoginAsync(T user, UserLoginInfo login)
         {
             var key = KeyFormats.GetKey(login.ProviderKey, user.Id);
@@ -175,36 +179,84 @@ namespace Couchbase.AspNet.Identity
 
         }
 
+        /// <summary>
+        /// Gets all of the claims for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<IList<Claim>> GetClaimsAsync(T user)
         {
             return Task.FromResult((IList <Claim>)user.Claims);
         }
 
+        /// <summary>
+        /// Adds a claim to a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="claim">The claim.</param>
+        /// <returns></returns>
         public Task AddClaimAsync(T user, Claim claim)
         {
-            throw new NotImplementedException();
+            user.Claims.Add(claim);
+            return Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Removes a claim from a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="claim">The claim.</param>
+        /// <returns></returns>
         public Task RemoveClaimAsync(T user, Claim claim)
         {
-            throw new NotImplementedException();
+            user.Claims.Remove(claim);
+            return Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Adds a user to a role asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="roleName">Name of the role.</param>
+        /// <returns></returns>
         public Task AddToRoleAsync(T user, string roleName)
         {
-            throw new NotImplementedException();
+            user.Roles.Add(new IdentityRole(roleName));
+            return Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Removes a role from a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="roleName">Name of the role.</param>
+        /// <returns></returns>
         public Task RemoveFromRoleAsync(T user, string roleName)
         {
-            throw new NotImplementedException();
+            var role = user.Roles.FirstOrDefault(x => x.Name.Equals(roleName));
+            if (role != null)
+            {
+                user.Roles.Remove(role);
+            }
+            return Task.FromResult(0);
         }
 
+        /// <summary>
+        /// Gets all of the roles for a user asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public Task<IList<string>> GetRolesAsync(T user)
         {
            return Task.FromResult((IList<string>)user.Roles.Select(x => x.Name).ToList());
         }
 
+        /// <summary>
+        /// Determines whether the user has a role asynchronously.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="roleName">Name of the role.</param>
+        /// <returns></returns>
         public Task<bool> IsInRoleAsync(T user, string roleName)
         {
             return Task.FromResult(user.Roles.Any(x => x.Name.Equals(roleName)));

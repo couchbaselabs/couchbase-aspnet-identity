@@ -163,7 +163,7 @@ namespace Couchbase.AspNet.Identity.Tests
         }
 
         [Test]
-        public void When_User_Does_Not_Exist_FindByIdAsync_Fails()
+        public async void When_User_Does_Not_Exist_FindByIdAsync_Returns_Null()
         {
             var mockResult = new Mock<IOperationResult<IdentityUser>>();
             mockResult.SetupGet(x => x.Success).Returns(false);
@@ -175,7 +175,7 @@ namespace Couchbase.AspNet.Identity.Tests
                 .ReturnsAsync(mockResult.Object);
 
             var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
-            Assert.Throws<CouchbaseException>(async () => await store.FindByIdAsync(Guid.NewGuid().ToString()));
+            Assert.IsNull(await store.FindByIdAsync(Guid.NewGuid().ToString()));
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace Couchbase.AspNet.Identity.Tests
         }
 
         [Test]
-        public void When_User_Does_Not_Exist_SetEmailAsync_Fails()
+        public async void When_User_Does_Not_Exist_SetEmailAsync_Fails()
         {
             var user = new IdentityUser("foo");
             var expectedEmail = "fo0@bar.com";
@@ -230,7 +230,8 @@ namespace Couchbase.AspNet.Identity.Tests
                 .ReturnsAsync(mockResult.Object);
 
             var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
-            Assert.Throws<CouchbaseException>(async () => await store.SetEmailAsync(user, expectedEmail));
+            await store.SetEmailAsync(user, expectedEmail);
+            Assert.Throws<CouchbaseException>(async () => await store.UpdateAsync(user));
         }
 
         [Test]
@@ -254,7 +255,7 @@ namespace Couchbase.AspNet.Identity.Tests
         }
 
         [Test]
-        public void When_User_Does_Not_Exist_SetEmailConfirmedAsync_Fails()
+        public async void When_User_Does_Not_Exist_SetEmailConfirmedAsync_Fails()
         {
             var user = new IdentityUser("foo");
             var confirmed = true;
@@ -269,7 +270,8 @@ namespace Couchbase.AspNet.Identity.Tests
                 .ReturnsAsync(mockResult.Object);
 
             var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
-            Assert.Throws<CouchbaseException>(async () => await store.SetEmailConfirmedAsync(user, confirmed));
+            await store.SetEmailConfirmedAsync(user, confirmed);
+            Assert.Throws<CouchbaseException>(async () => await store.UpdateAsync(user));
         }
 
         [Test]
@@ -335,7 +337,7 @@ namespace Couchbase.AspNet.Identity.Tests
         }
 
         [Test]
-        public void When_User_Does_Not_Exist_SetPasswordHashAsync_Fails()
+        public async void When_User_Does_Not_Exist_SetPasswordHashAsync_Fails()
         {
             var user = new IdentityUser("foo");
             var passwordHash = "somepasswordhash";
@@ -350,7 +352,8 @@ namespace Couchbase.AspNet.Identity.Tests
                 .ReturnsAsync(mockResult.Object);
 
             var store = new UserStore<IdentityUser>(new ThrowableBucket(mockBucket.Object));
-            Assert.Throws<CouchbaseException>(async () => await store.SetPasswordHashAsync(user, passwordHash));
+            await store.SetPasswordHashAsync(user, passwordHash);
+            Assert.Throws<CouchbaseException>(async () => await store.UpdateAsync(user));
         }
     }
 }

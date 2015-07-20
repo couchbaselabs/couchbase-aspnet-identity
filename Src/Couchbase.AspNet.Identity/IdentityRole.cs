@@ -13,6 +13,7 @@ namespace Couchbase.AspNet.Identity
         /// </summary>
         public IdentityRole()
         {
+            Id = Guid.NewGuid().ToString();
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ namespace Couchbase.AspNet.Identity
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            //Nothing to dispose; Couchbase dependencies managed at the App level through Global.asax
         }
 
         /// <summary>

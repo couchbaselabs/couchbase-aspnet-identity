@@ -2,15 +2,15 @@
 <package >
   <metadata>
     <id>CouchbaseIdentity</id>
-    <version>1.0.0-dp</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <version>1.0.1-dp</version>
+    <title>Couchbase ASP.NET Identity</title>
+    <authors>Couchbase, Inc</authors>
+    <owners>Couchbase, Inc</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
     <projectUrl>https://github.com/couchbaselabs/couchbase-aspnet-identity</projectUrl>
     <iconUrl>http://rantdriven.com/image.axd?picture=couchbase-circle-symbol.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>The official ASP.NET Identity Provider for Couchbase Server.</description>
     <releaseNotes>Developer preview 1: supports basic authentication.</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>NOSQL Database Couchbase ASP.NET ASP Identity Auth Authentication authorization</tags>
